@@ -163,10 +163,14 @@ _Below is an example of how you can instruct your audience on installing and set
 <br/>
 
 **Mobile Home Page**
+<br/>
+
 ![SubAccount_Menu_Desktop_view](./readme_assets/images/MobileHome.jpg)
 <br/>
 
 **Mobile Details View**
+<br/>
+
 ![SubAccount_Menu_Desktop_view](./readme_assets/images/mobileDetails.jpg)
 <br/>
 
