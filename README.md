@@ -20,9 +20,7 @@
 -->
 ![GitHub forks](https://img.shields.io/github/forks/jack123xyz/notflix?style=for-the-badge)
 ![GitHub Repo stars](https://img.shields.io/github/stars/jack123xyz/notflix?style=for-the-badge)
-[![Issues][issues-shield]][issues-url]
-[![Unlicense License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+
 
 <!-- PROJECT LOGO -->
 <br />
