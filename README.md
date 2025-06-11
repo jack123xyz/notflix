@@ -128,16 +128,75 @@ To get Notflix running on your local machine, follow these steps:
    ```sh
    npm install
    ```
-5. Create a `.env.local` file in the root directory with your API keys
+5. Create a `.env.local` file in the root directory with your API key
+
    ```js
    VITE_TMDB_API_KEY = your_tmdb_api_key;
-   VITE_FIREBASE_API_KEY = your_firebase_api_key;
-   VITE_FIREBASE_AUTH_DOMAIN = your_firebase_auth_domain;
-   VITE_FIREBASE_PROJECT_ID = your_firebase_project_id;
-   VITE_FIREBASE_STORAGE_BUCKET = your_firebase_storage_bucket;
-   VITE_FIREBASE_MESSAGING_SENDER_ID = your_firebase_messaging_sender_id;
-   VITE_FIREBASE_APP_ID = your_firebase_app_id;
    ```
+
+   ## Firebase Setup
+
+After cloning the repository, you'll need to set up your own Firebase project:
+
+1. **Create a Firebase Project**:
+
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Click "Add project" and follow the setup wizard
+   - Give your project a name (e.g., "notflix-clone")
+   - Choose whether to enable Google Analytics (optional)
+   - Click "Create project"
+
+2. **Configure Authentication**:
+
+   - In your Firebase project, go to "Authentication" from the left sidebar
+   - Click "Get started"
+   - Enable the "Email/Password" sign-in method
+   - Save your changes
+
+3. **Set up Firestore Database**:
+
+   - Go to "Firestore Database" in the left sidebar
+   - Click "Create database"
+   - Choose "Start in test mode" for development (you can change this later)
+   - Select a location close to your users
+   - Click "Enable"
+
+4. **Get your Firebase configuration**:
+
+   - Go to Project Settings (gear icon in the top left)
+   - Scroll down to "Your apps" section
+   - Click the Web icon (</>) to add a web app
+   - Register the app with a nickname (e.g., "notflix-web")
+   - Copy the `firebaseConfig` object that appears
+
+5. **Update the Firebase configuration in the project**:
+
+   - Create a file at `src/firebase.js` with the following content:
+
+   ```javascript
+   // src/firebase.js
+   import { initializeApp } from "firebase/app";
+   import { getAuth } from "firebase/auth";
+   import { getFirestore } from "firebase/firestore";
+
+   const firebaseConfig = {
+     apiKey: "YOUR_API_KEY",
+     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+     projectId: "YOUR_PROJECT_ID",
+     storageBucket: "YOUR_PROJECT_ID.appspot.com",
+     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+     appId: "YOUR_APP_ID",
+   };
+
+   // Replace the placeholder values with your Firebase configuration values
+
+   const app = initializeApp(firebaseConfig);
+   const auth = getAuth(app);
+   const db = getFirestore(app);
+
+   export { auth, db };
+   ```
+
 6. Start the development server
    ```sh
    npm run dev
