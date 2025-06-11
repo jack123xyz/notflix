@@ -79,7 +79,7 @@
 [![Home Page Screen Shot][product-screenshot]](./readme_assets/images/Project-Screenshot.jpg)
 
 Notflix is a responsive Netflix clone that was born from a desire to master the Vue.js framework. The project was breaking new ground for me, building a modern single-page application (SPA), as a departure from my experience building multi-page e-commerce websites.
-<br />
+<br></br>
 The application was built from scratch over approximately two and a half months, with a primary focus on replicating the polished user interface of Netflix. It is developed with Vite for a fast and modern workflow and is deployed on my Linux server using Apache. I hope you enjoy exploring it.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -101,39 +101,46 @@ The application was built from scratch over approximately two and a half months,
 
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To get Notflix running on your local machine, follow these steps:
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-
-- npm
-  ```sh
-  npm install npm@latest -g
-  ```
+- Node.js (v16 or later)
+- npm (v7 or later)
+- A TMDB API key
+- A Firebase project
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+1. Get a free API Key from [TMDB](https://www.themoviedb.org/settings/api)
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+2. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+
+   - Enable Authentication with Email/Password provider
+   - Set up Firestore Database
+   - Get your Firebase configuration from Project Settings
+
+3. Clone the repository
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/jack123xyz/notflix.git
    ```
-3. Install NPM packages
+4. Install NPM packages
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
+5. Create a `.env.local` file in the root directory with your API keys
    ```js
-   const API_KEY = "ENTER YOUR API";
+   VITE_TMDB_API_KEY = your_tmdb_api_key;
+   VITE_FIREBASE_API_KEY = your_firebase_api_key;
+   VITE_FIREBASE_AUTH_DOMAIN = your_firebase_auth_domain;
+   VITE_FIREBASE_PROJECT_ID = your_firebase_project_id;
+   VITE_FIREBASE_STORAGE_BUCKET = your_firebase_storage_bucket;
+   VITE_FIREBASE_MESSAGING_SENDER_ID = your_firebase_messaging_sender_id;
+   VITE_FIREBASE_APP_ID = your_firebase_app_id;
    ```
-5. Change git remote url to avoid accidental pushes to base project
+6. Start the development server
    ```sh
-   git remote set-url origin github_username/repo_name
-   git remote -v # confirm the changes
+   npm run dev
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
