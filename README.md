@@ -18,8 +18,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-
-[![Forks][forks-shield]][forks-url]
+![GitHub forks](https://img.shields.io/github/forks/jack123xyz/notflix?style=for-the-badge)
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![Unlicense License][license-shield]][license-url]
