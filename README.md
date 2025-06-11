@@ -240,6 +240,6 @@ Use this space to list resources you find helpful and would like to give credit 
 [Firebase-url]: https://firebase.google.com/
 [Firebase.google.com]: https://img.shields.io/badge/firebase-ffca28?style=for-the-badge&logo=firebase&logoColor=black
 [Tailwind-url]: https://tailwindcss.com/
-[Tailwindcss.com]: https://img.shields.io/badge/tailwindcss-0F172A?&logo=tailwindcss
+[Tailwindcss.com]: https://img.shields.io/badge/tailwindcss-0F172A?style=for-the-badge&logo=tailwindcss
 [TMDB-url]: https://www.themoviedb.org/?language=en-US
-[themoviedatabase.com]: https://img.shields.io/badge/Powered_by_TMDB-555555?logo=themoviedatabase&logoColor=01D277
+[themoviedatabase.com]: https://img.shields.io/badge/TMDB-555555?style=for-the-badge&logo=themoviedatabase&logoColor=01D277
