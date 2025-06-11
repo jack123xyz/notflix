@@ -1,16 +1,17 @@
 <template>
   <div v-if="seasons && seasons.length > 0" class="mt-10">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4 cursor-pointer">
       <h2 class="text-2xl font-semibold">Episodes</h2>
       <div v-if="seasons.length > 1" class="relative">
         <select
           v-model="selectedSeason"
-          class="bg-gray-800 border border-gray-600 text-white p-2 rounded"
+          class="w-full bg-netflix-gray-250 border border-netflix-gray-100 text-white py-2 px-4 rounded flex justify-between items-center font-semibold text-lg cursor-pointer"
         >
           <option
             v-for="season in seasons"
             :key="season.id"
             :value="season.season_number"
+            class="cursor-pointer"
           >
             {{ season.name }}
           </option>

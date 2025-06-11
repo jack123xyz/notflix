@@ -44,16 +44,25 @@
     <div class="absolute inset-0 flex justify-center">
       <div class="relative h-full w-auto max-w-[90%]">
         <img
-          ref="posterRef"
+          v-if="posterUrl"
+          ref="posterImageRef"
           :src="posterUrl"
           :alt="title"
           class="h-full w-auto object-cover rounded border-2 border-white/100"
-          @load="handleImageLoaded"
-          @error="handleImageError"
+          @load="onImageLoadSuccess"
+          @error="onImageLoadError"
           crossorigin="anonymous"
         />
 
-        <div class="absolute inset-0 bg-black opacity-50 rounded"></div>
+        <div
+          v-else
+          class="h-full w-full bg-gray-700 rounded border-2 border-white/100 flex items-center justify-center"
+        ></div>
+
+        <div
+          v-if="posterUrl && imageSuccessfullyLoaded"
+          class="absolute inset-0 bg-black opacity-50 rounded"
+        ></div>
       </div>
     </div>
 
@@ -102,7 +111,6 @@
           class="bg-gray-600/80 text-white py-2 px-8 rounded font-semibold flex items-center justify-center cursor-pointer"
           @click.stop="toggleMyList"
         >
-          <span class=""></span>
           <svg
             v-if="isInMyList"
             viewBox="0 0 24 24"
@@ -163,18 +171,10 @@
 </template>
 
 <script setup>
-import {
-  computed,
-  ref,
-  reactive,
-  onMounted,
-  watch,
-  onBeforeUnmount,
-} from "vue";
+import { computed, ref, reactive, onMounted, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useMovieStore } from "@/stores/movieStore";
 import { useUserStore } from "@/stores/user";
-
 import {
   extractColorsFromImage,
   getFallbackColors,
@@ -203,38 +203,21 @@ const props = defineProps({
 
 const router = useRouter();
 const movieStore = useMovieStore();
-const posterRef = ref(null);
+const posterImageRef = ref(null);
+
 const dominantColors = reactive({
   primary: null,
   secondary: null,
   tertiary: null,
 });
 
-const contentGenres = computed(() => {
-  if (props.genres && props.genres.length > 0) {
-    return props.genres.slice(0, 3);
-  }
-
-  if (props.movie?.genre_ids && movieStore.genres) {
-    return props.movie.genre_ids
-      .slice(0, 3)
-      .map((id) => movieStore.genres[id])
-      .filter(Boolean);
-  }
-
-  return [];
-});
-
 const isLoading = ref(true);
 const loadError = ref(false);
-const loadAttempts = ref(0);
-const mountedInstance = ref(Date.now());
+const imageSuccessfullyLoaded = ref(false);
 
 const posterUrl = computed(() => {
   if (!props.posterPath) return "";
-
-  const cacheBuster = loadAttempts.value > 0 ? `?cb=${Date.now()}` : "";
-  return `https://image.tmdb.org/t/p/w500${props.posterPath}${cacheBuster}`;
+  return `https://image.tmdb.org/t/p/w500${props.posterPath}`;
 });
 
 const logoUrl = computed(() => {
@@ -242,9 +225,39 @@ const logoUrl = computed(() => {
   return `https://image.tmdb.org/t/p/w500${props.logoPath}`;
 });
 
+const contentGenres = computed(() => {
+  if (props.genres && props.genres.length > 0) {
+    return props.genres.slice(0, 3);
+  }
+  if (props.movie?.genre_ids && movieStore.genres) {
+    return props.movie.genre_ids
+      .slice(0, 3)
+      .map((id) => movieStore.genres[id])
+      .filter(Boolean);
+  }
+  return [];
+});
+
+function emitDominantColors(colors) {
+  if (colors.length >= 3) {
+    dominantColors.primary = colors[0];
+    dominantColors.secondary = colors[1];
+    dominantColors.tertiary = colors[2];
+    emit("colorsExtracted", {
+      primary: colors[0],
+      secondary: colors[1],
+      tertiary: colors[2],
+    });
+  } else {
+    emitFallbackColors();
+  }
+}
+
 function emitFallbackColors() {
   const fallbackPalette = getFallbackColors();
-
+  dominantColors.primary = fallbackPalette[0];
+  dominantColors.secondary = fallbackPalette[1];
+  dominantColors.tertiary = fallbackPalette[2];
   emit("colorsExtracted", {
     primary: fallbackPalette[0],
     secondary: fallbackPalette[1],
@@ -252,62 +265,48 @@ function emitFallbackColors() {
   });
 }
 
-function handleImageLoaded() {
-  isLoading.value = false;
-  loadError.value = false;
-  extractColors();
+async function attemptColorExtraction() {
+  if (
+    posterImageRef.value &&
+    posterImageRef.value.complete &&
+    posterImageRef.value.naturalWidth > 0
+  ) {
+    try {
+      const colors = await extractColorsFromImage(posterImageRef.value);
+      emitDominantColors(colors);
+    } catch (error) {
+      console.error("Color extraction failed:", error);
+      emitFallbackColors();
+    }
+  } else {
+    console.warn("Image not ready for color extraction, using fallback.");
+    emitFallbackColors();
+  }
 }
 
-function handleImageError() {
+function onImageLoadSuccess() {
+  isLoading.value = false;
+  loadError.value = false;
+  imageSuccessfullyLoaded.value = true;
+  nextTick(() => {
+    attemptColorExtraction();
+  });
+}
+
+function onImageLoadError() {
+  console.error(`Failed to load poster image: ${posterUrl.value}`);
   isLoading.value = false;
   loadError.value = true;
-  console.error(`Failed to load poster image: ${posterUrl.value}`);
+  imageSuccessfullyLoaded.value = false;
   emitFallbackColors();
 }
 
 function retryLoading() {
-  isLoading.value = true;
-  loadError.value = false;
-  loadAttempts.value++;
-}
-
-function extractColors() {
-  emitFallbackColors();
-
-  if (!posterRef.value || loadError.value) {
-    return;
+  if (props.posterPath) {
+    isLoading.value = true;
+    loadError.value = false;
+    imageSuccessfullyLoaded.value = false;
   }
-
-  requestAnimationFrame(() => {
-    try {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-
-      const currentInstance = mountedInstance.value;
-
-      img.onload = function () {
-        if (mountedInstance.value !== currentInstance) return;
-
-        extractColorsFromImage(img)
-          .then((colors) => {
-            if (colors.length >= 3) {
-              dominantColors.primary = colors[0];
-              dominantColors.secondary = colors[1];
-              dominantColors.tertiary = colors[2];
-
-              emit("colorsExtracted", {
-                primary: colors[0],
-                secondary: colors[1],
-                tertiary: colors[2],
-              });
-            }
-          })
-          .catch(() => {});
-      };
-
-      img.src = posterUrl.value;
-    } catch (err) {}
-  });
 }
 
 const isInMyList = computed(() => {
@@ -317,7 +316,6 @@ const isInMyList = computed(() => {
 
 async function toggleMyList(event) {
   event.stopPropagation();
-
   if (!props.movie?.id) return;
 
   try {
@@ -325,7 +323,6 @@ async function toggleMyList(event) {
       const myListItem = userStore.currentMyList.find(
         (item) => item.id === props.movie.id
       );
-
       if (myListItem && myListItem.docId) {
         await userStore.removeFromMyList(myListItem.docId);
       } else {
@@ -341,16 +338,9 @@ async function toggleMyList(event) {
         media_type: props.contentType || "movie",
         overview: props.movie.overview || "",
         vote_average: props.movie.vote_average || 0,
+        release_date: props.movie.release_date,
+        first_air_date: props.movie.first_air_date,
       };
-
-      if (props.movie.release_date) {
-        contentToAdd.release_date = props.movie.release_date;
-      }
-
-      if (props.movie.first_air_date) {
-        contentToAdd.first_air_date = props.movie.first_air_date;
-      }
-
       await userStore.addToMyList(contentToAdd);
     }
   } catch (error) {
@@ -362,10 +352,6 @@ onMounted(async () => {
   if (!movieStore.genres) {
     await movieStore.fetchGenres();
   }
-
-  isLoading.value = true;
-  loadError.value = false;
-  emitFallbackColors();
 });
 
 watch(
@@ -374,35 +360,24 @@ watch(
     if (newPath) {
       isLoading.value = true;
       loadError.value = false;
-
-      mountedInstance.value = Date.now();
+      imageSuccessfullyLoaded.value = false;
+    } else {
+      isLoading.value = false;
+      loadError.value = false;
+      imageSuccessfullyLoaded.value = false;
+      emitFallbackColors();
     }
-  }
+  },
+  { immediate: true }
 );
-
-onBeforeUnmount(() => {
-  mountedInstance.value = null;
-});
 </script>
 
 <style scoped>
-img {
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+.absolute.bottom-27 {
+  bottom: 6.75rem;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.absolute.inset-0.flex.justify-center img {
-  animation: fadeIn 0.3s ease-in-out;
+.absolute.inset-0.bg-black {
+  transition: opacity 0.3s ease-in-out;
 }
 </style>

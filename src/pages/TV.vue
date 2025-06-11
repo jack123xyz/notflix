@@ -41,7 +41,12 @@
         <MobileFeaturedPoster
           v-if="featuredTVShow && isMobileView"
           :movie="featuredTVShow"
+          :poster-path="featuredTVShow.poster_path"
+          :title="featuredTVShow.name"
+          :overview="featuredTVShow.overview"
+          :movie-id="featuredTVShow.id"
           :logo-path="featuredLogo"
+          content-type="tv"
           @colors-extracted="updateBackgroundColors"
         />
         <FeaturedTrailer
