@@ -52,6 +52,7 @@
           @load="onImageLoadSuccess"
           @error="onImageLoadError"
           crossorigin="anonymous"
+          referrerpolicy="no-referrer"
         />
 
         <div
@@ -216,8 +217,13 @@ const loadError = ref(false);
 const imageSuccessfullyLoaded = ref(false);
 
 const posterUrl = computed(() => {
-  if (!props.posterPath) return "";
-  return `https://image.tmdb.org/t/p/w500${props.posterPath}`;
+  if (!props.posterPath) {
+    console.warn("No poster path provided for:", props.title);
+    return "";
+  }
+
+  const imageSize = process.env.NODE_ENV === "production" ? "w342" : "w500";
+  return `https://image.tmdb.org/t/p/${imageSize}${props.posterPath}`;
 });
 
 const logoUrl = computed(() => {
@@ -303,9 +309,25 @@ function onImageLoadError() {
 
 function retryLoading() {
   if (props.posterPath) {
+    console.log("Retrying image load with path:", props.posterPath);
     isLoading.value = true;
     loadError.value = false;
     imageSuccessfullyLoaded.value = false;
+
+    const img = posterImageRef.value;
+    if (img) {
+      const fallbackUrl = `https://image.tmdb.org/t/p/w185${
+        props.posterPath
+      }?retry=${Date.now()}`;
+
+      img.src = "";
+      setTimeout(() => {
+        img.src = fallbackUrl;
+      }, 100);
+    }
+  } else {
+    console.warn("Cannot retry - no poster path available");
+    emitFallbackColors();
   }
 }
 

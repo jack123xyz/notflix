@@ -37,10 +37,10 @@
         :slides-offset-before="activeBreakpoint.offsetBefore"
         :slides-offset-after="activeBreakpoint.offsetAfter"
         :speed="800"
-        class="group 2xl:pb-12 xl:pb-7"
+        class="group 2xl:pb-12 xl:pb-7 touch-swiper"
         @slidechange="slideChanged"
         touch-events-target="container"
-        :allow-touch-move="isMobileView"
+        :allow-touch-move="true"
         :loop-additional-slides="
           Math.max(8, Math.ceil(activeBreakpoint.slidesPerView))
         "
@@ -129,7 +129,7 @@ const contentItems = computed(() => {
 });
 
 const swiper = ref(null);
-const isMobileView = ref(false);
+const isMobileView = ref(window.innerWidth < 1024);
 const showMobileDetails = ref(false);
 const selectedContentId = ref(null);
 const isHoverCardActive = ref(false);
@@ -240,6 +240,8 @@ function initSwiper() {
   if (sw && displayItems.value?.length) {
     try {
       setActiveBreakpoint();
+      const isMobile = window.innerWidth < 1024;
+      isMobileView.value = isMobile;
       let adjustedSlidesPerView = activeBreakpoint.value.slidesPerView;
       if (contentItems.value.length < adjustedSlidesPerView * 1.5) {
         adjustedSlidesPerView = Math.max(1, contentItems.value.length / 2);
@@ -294,7 +296,7 @@ function initSwiper() {
           adjustedSlidesPerView * 3
         ),
         virtualTranslate: false,
-        allowTouchMove: isMobileView.value,
+        allowTouchMove: true,
         touchEventsTarget: "container",
         touchRatio: 1,
         touchAngle: 45,
@@ -522,5 +524,17 @@ swiper-container::part(button-next) {
 
 .swiper-pagination-bullet-active {
   background-color: rgba(255, 255, 255, 1);
+}
+
+/* Add these styles to ensure touch events work */
+.touch-swiper {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+swiper-slide {
+  touch-action: pan-y;
+  user-select: none;
 }
 </style>
