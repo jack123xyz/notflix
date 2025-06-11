@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-8">
+  <div class="mb-8 mt-4 lg:mt-0">
     <div class="flex items-center justify-between mb-4 mx-8">
       <h2
         class="text-md xl:text-lg 2xl:text-xl 3xl:text-4xl font-bold ml-2 xl:ml-6"
