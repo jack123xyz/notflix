@@ -21,6 +21,12 @@
 ![GitHub forks](https://img.shields.io/github/forks/jack123xyz/notflix?style=for-the-badge)
 ![GitHub Repo stars](https://img.shields.io/github/stars/jack123xyz/notflix?style=for-the-badge)
 
+<<<<<<< HEAD
+=======
+![GitHub forks](https://img.shields.io/github/forks/jack123xyz/notflix?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/jack123xyz/notflix?style=for-the-badge)
+[![LinkedIn][linkedin-shield]][linkedin-url]
+>>>>>>> 1591e67 (Readme updates/Mobile updates)
 
 <!-- PROJECT LOGO -->
 <br />
@@ -75,10 +81,10 @@
 
 ## About The Project
 
-[![Home Page Screen Shot][product-screenshot]](./readme_assetsimages/Project-Screenshot.jpg)
+[![Home Page Screen Shot][product-screenshot]](./readme_assets/images/Project-Screenshot.jpg)
 
 Notflix is a responsive Netflix clone that was born from a desire to master the Vue.js framework. The project was breaking new ground for me, building a modern single-page application (SPA), as a departure from my experience building multi-page e-commerce websites.
-
+<br />
 The application was built from scratch over approximately two and a half months, with a primary focus on replicating the polished user interface of Netflix. It is developed with Vite for a fast and modern workflow and is deployed on my Linux server using Apache. I hope you enjoy exploring it.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -139,11 +145,27 @@ _Below is an example of how you can instruct your audience on installing and set
 
 <!-- USAGE EXAMPLES -->
 
-## Usage
+## Screenshots
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+**Home.vue**
+![![Home Page Screen Shot][product-screenshot]](./readme_assets/images/Project-Screenshot.jpg)
+<br/>
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+**Landing.vue**
+![SignUp_page2_Desktop_view](./readme_assets/images/Landing.jpg)
+<br/>
+
+**ContentModal.vue**
+![SignIn_Desktop_view](./readme_assets/images/ModalScreenshot.jpg)
+<br/>
+
+**Login.vue**
+![SubAccount_Menu_Desktop_view](./readme_assets/images/SignIn.jpg)
+<br/>
+
+**SelectProfile.vue**
+![SubAccount_Menu_Desktop_view](./readme_assets/images/Profiles.jpg)
+<br/>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -157,7 +179,8 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [x] Interactive Modals for detailed content information, suggestions, and episode lists
 - [x] Component-based structure leverages Vue.js for modular UI elements (Navbar, Footer, Content Grids/Carousels, Modals, etc.)
 - [x] Utilizes Pinia for global state management (user data, movie/TV genres, etc.)
-- [x] Client side routing between sections using Vue Router -[x] Tailwind CSS styling
+- [x] Client side routing between sections using Vue Router
+- [x] Tailwind CSS styling
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
