@@ -231,10 +231,10 @@ Use this space to list resources you find helpful and would like to give credit 
 [Vite.dev]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=Vite&logoColor=white
 [Vite-url]: https://vite.dev/
 [Apache-url]: https://www.apache.org/
-[PiniaStore]: https://img.shields.io/badge/Pinia-3.0-303643?labelColor=FFDB5C
+[PiniaStore]: https://img.shields.io/badge/Pinia-3.0-303643?style=for-the-badge&labelColor=FFDB5C
 [Pinia-url]: https://pinia.vuejs.org/
 [Router-url]: https://router.vuejs.org/
-[VueRouter]: https://img.shields.io/badge/vue--router-%404-brightgreen
+[VueRouter]: https://img.shields.io/badge/vue--router-%404-brightgreen?style=for-the-badge
 [Node.js-url]: https://nodejs.org/en
 [Node.js]: https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white
 [Firebase-url]: https://firebase.google.com/
