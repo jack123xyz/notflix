@@ -1,11 +1,18 @@
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
+const RATING_FILTER = "&certification_country=US&certification.lte=R";
 
 const filterByBackdropPath = (results) =>
   results.filter((item) => item.backdrop_path);
 
+/**
+ * Fetch trending movies, filtered to exclude ratings above R.
+ * @returns {Promise<Array>} List of popular movies
+ */
 export async function fetchTrendingMovies() {
-  const res = await fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`);
+  const res = await fetch(
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc${RATING_FILTER}`
+  );
   if (!res.ok) throw new Error("Failed to fetch movies");
   const data = await res.json();
   return filterByBackdropPath(data.results);
@@ -13,7 +20,7 @@ export async function fetchTrendingMovies() {
 
 export async function fetchMoviesByGenre(genreId) {
   const res = await fetch(
-    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&sort_by=popularity.desc`
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&sort_by=popularity.desc${RATING_FILTER}`
   );
   if (!res.ok) throw new Error("Failed to fetch movies");
   const data = await res.json();
@@ -90,21 +97,19 @@ export async function fetchMovieRatings(movieId) {
 }
 
 /**
- * Fetch new releases - movies released in the past 60 days
+ * Fetch new releases - movies released in the past 60 days, filtered by rating.
  * @returns {Promise<Array>} List of recent movie releases
  */
 export async function fetchNewReleases() {
-  // Calculate date 60 days ago
   const today = new Date();
   const sixtyDaysAgo = new Date(today);
   sixtyDaysAgo.setDate(today.getDate() - 60);
 
-  // Format dates as YYYY-MM-DD (required by TMDB API)
   const fromDate = sixtyDaysAgo.toISOString().split("T")[0];
   const toDate = today.toISOString().split("T")[0];
 
   const res = await fetch(
-    `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=popularity.desc`
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=popularity.desc${RATING_FILTER}`
   );
   if (!res.ok) throw new Error("Failed to fetch new releases");
   const data = await res.json();
@@ -112,68 +117,48 @@ export async function fetchNewReleases() {
 }
 
 /**
- * Fetch upcoming movies with improved error handling and more data
+ * Fetch upcoming movies with improved error handling and more data, filtered by rating.
  * @returns {Promise<Array>} List of upcoming movies
  */
 export async function fetchUpcomingMovies() {
   try {
     console.log("Fetching upcoming movies...");
-    const [page1, page2, page3] = await Promise.all([
-      fetch(`${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=1&region=US`),
-      fetch(`${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=2&region=US`),
-      fetch(`${BASE_URL}/movie/upcoming?api_key=${API_KEY}&page=3&region=US`),
+    const today = new Date();
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + 90); // Look ahead 90 days
+
+    const fromDate = today.toISOString().split("T")[0];
+    const toDate = futureDate.toISOString().split("T")[0];
+
+    const [page1Res, page2Res] = await Promise.all([
+      fetch(
+        `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc&page=1${RATING_FILTER}`
+      ),
+      fetch(
+        `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc&page=2${RATING_FILTER}`
+      ),
     ]);
 
-    if (!page1.ok) {
-      console.error("Page 1 error:", await page1.text());
-      throw new Error(`Failed to fetch upcoming movies: ${page1.status}`);
+    if (!page1Res.ok) {
+      console.error("Upcoming Movies Page 1 error:", await page1Res.text());
+      throw new Error(`Failed to fetch upcoming movies: ${page1Res.status}`);
     }
 
-    const data1 = await page1.json();
+    const data1 = await page1Res.json();
     let results = [...data1.results];
 
-    if (page2.ok) {
-      const data2 = await page2.json();
-      results = [...results, ...data2.results];
-    } else {
-      console.warn("Page 2 failed:", page2.status);
-    }
+    if (page2Res.ok) {
+      const data2 = await page2Res.json();
 
-    if (page3.ok) {
-      const data3 = await page3.json();
-      results = [...results, ...data3.results];
+      const existingIds = new Set(results.map((m) => m.id));
+      const newMovies = data2.results.filter((m) => !existingIds.has(m.id));
+      results = [...results, ...newMovies];
+      console.log(`Added ${newMovies.length} more movies from page 2`);
     } else {
-      console.warn("Page 3 failed:", page3.status);
+      console.warn("Upcoming Movies Page 2 failed:", page2Res.status);
     }
 
     console.log(`Total upcoming movies fetched: ${results.length}`);
-
-    if (results.length < 20) {
-      console.log("Not enough upcoming movies, using discover API as fallback");
-
-      const today = new Date();
-      const futureDate = new Date(today);
-      futureDate.setDate(today.getDate() + 90); // look ahead 90 days
-
-      const fromDate = today.toISOString().split("T")[0];
-      const toDate = futureDate.toISOString().split("T")[0];
-
-      const discoverRes = await fetch(
-        `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc`
-      );
-
-      if (discoverRes.ok) {
-        const discoverData = await discoverRes.json();
-
-        const existingIds = new Set(results.map((m) => m.id));
-        const newMovies = filterByBackdropPath(discoverData.results).filter(
-          (m) => !existingIds.has(m.id)
-        );
-        results = [...results, ...newMovies];
-
-        console.log(`Added ${newMovies.length} more movies from discover API`);
-      }
-    }
 
     return filterByBackdropPath(results)
       .filter((movie) => movie.poster_path && movie.release_date)
@@ -186,7 +171,7 @@ export async function fetchUpcomingMovies() {
 
 /**
  * Fetch movies coming out this month (next 30 days)
- * @returns {Promise<Array} Movies releasing within 30 days
+ * @returns {Promise<Array>} Movies releasing within 30 days
  */
 export async function fetchComingThisMonth() {
   try {
@@ -227,7 +212,7 @@ export async function fetchComingNextMonth() {
     console.log(`Fetching movies from ${fromDate} to ${toDate}`);
 
     const res = await fetch(
-      `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc&region=US&with_release_type=3`
+      `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc®ion=US&with_release_type=3${RATING_FILTER}`
     );
 
     if (!res.ok) {
@@ -239,7 +224,7 @@ export async function fetchComingNextMonth() {
     let results = filterByBackdropPath(data.results);
     if (results.length < 10) {
       const page2Res = await fetch(
-        `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc&page=2&region=US&with_release_type=3`
+        `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc&page=2®ion=US&with_release_type=3${RATING_FILTER}`
       );
 
       if (page2Res.ok) {
@@ -282,12 +267,12 @@ export async function fetchComingSoon() {
 }
 
 /**
- * Fetch critically acclaimed movies (high voter average)
+ * Fetch critically acclaimed movies (high voter average), filtered by rating.
  * @returns {Promise<Array>} List of highly-rated movies
  */
 export async function fetchCriticallyAcclaimedMovies() {
   const res = await fetch(
-    `${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=3000`
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=vote_average.desc&vote_count.gte=3000${RATING_FILTER}`
   );
   if (!res.ok) throw new Error("Failed to fetch critically acclaimed movies");
   const data = await res.json();
@@ -380,13 +365,17 @@ export async function fetchTVShowRatings(tvId) {
   }
 }
 
+/**
+ * Fetch the current top 10 popular movies in the USA, filtered by rating.
+ * Note: Uses discover/movie endpoint to allow for rating filters.
+ * @returns {Promise<Array>} List of top 10 movies with ranking
+ */
 export async function fetchTopTenMovies() {
   const res = await fetch(
-    `${BASE_URL}/trending/movie/week?api_key=${API_KEY}&region=US`
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc®ion=US${RATING_FILTER}`
   );
   if (!res.ok) throw new Error("Failed to fetch top movies");
   const data = await res.json();
-  // Filter first, then slice and map
   return filterByBackdropPath(data.results)
     .slice(0, 10)
     .map((movie, index) => ({ ...movie, ranking: index + 1 }));
@@ -398,7 +387,7 @@ export async function fetchTopTenMovies() {
  */
 export async function fetchTopTenTVShows() {
   const res = await fetch(
-    `${BASE_URL}/trending/tv/week?api_key=${API_KEY}&region=US`
+    `${BASE_URL}/trending/tv/week?api_key=${API_KEY}®ion=US`
   );
   if (!res.ok) throw new Error("Failed to fetch top TV shows");
   const data = await res.json();
