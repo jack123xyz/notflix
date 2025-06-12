@@ -212,7 +212,7 @@ export async function fetchComingNextMonth() {
     console.log(`Fetching movies from ${fromDate} to ${toDate}`);
 
     const res = await fetch(
-      `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc®ion=US&with_release_type=3${RATING_FILTER}`
+      `${BASE_URL}/discover/movie?api_key=${API_KEY}&primary_release_date.gte=${fromDate}&primary_release_date.lte=${toDate}&sort_by=primary_release_date.asc&region=US&with_release_type=3${RATING_FILTER}`
     );
 
     if (!res.ok) {
@@ -372,7 +372,7 @@ export async function fetchTVShowRatings(tvId) {
  */
 export async function fetchTopTenMovies() {
   const res = await fetch(
-    `${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc®ion=US${RATING_FILTER}`
+    `${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&region=US${RATING_FILTER}`
   );
   if (!res.ok) throw new Error("Failed to fetch top movies");
   const data = await res.json();
@@ -387,7 +387,7 @@ export async function fetchTopTenMovies() {
  */
 export async function fetchTopTenTVShows() {
   const res = await fetch(
-    `${BASE_URL}/trending/tv/week?api_key=${API_KEY}®ion=US`
+    `${BASE_URL}/trending/tv/week?api_key=${API_KEY}&region=US`
   );
   if (!res.ok) throw new Error("Failed to fetch top TV shows");
   const data = await res.json();

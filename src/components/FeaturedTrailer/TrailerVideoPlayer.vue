@@ -2,7 +2,11 @@
   <div
     class="absolute inset-0 overflow-hidden lg:h-[70vh] xl:h-[85vh] 2xl:h-[100vh] 3xl:h-[100vh] bg-netflix-bg-gray"
   >
-    <div ref="playerContainer" class="relative w-full h-full"></div>
+    <div
+      ref="playerContainer"
+      id="featured-trailer-player-container"
+      class="relative w-full h-full"
+    ></div>
   </div>
 </template>
 
@@ -113,7 +117,7 @@ const initPlayer = async () => {
 
   await loadYouTubeAPI();
 
-  player = new window.YT.Player(playerContainer.value, {
+  player = new window.YT.Player("featured-trailer-player-container", {
     videoId: props.trailerKey,
     playerVars: {
       autoplay: 1,
