@@ -269,7 +269,7 @@ None for now..
 
 ## Contact
 
-Your Name - [Linked In](https://www.linkedin.com/in/jack-anderson-52bb78369/) - jackanderson1302000@gmail.com
+Jack Anderson - [Linked In](https://www.linkedin.com/in/jack-anderson-52bb78369/) - jackanderson1302000@gmail.com
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -87,7 +87,7 @@ async function setupYouTubePlayer() {
         modestbranding: 1,
         rel: 0,
         showinfo: 0,
-        mute: 0,
+        mute: 1,
         playsinline: 1,
       },
       events: {
