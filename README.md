@@ -91,7 +91,7 @@ The application was built from scratch over approximately two and a half months,
 - [![Tailwind][Tailwindcss.com]][Tailwind-url]
 - [![TMDB][themoviedatabase.com]][TMDB-url]
 - [![Pinia][PiniaStore]][Pinia-url]
-- [![Firebase][Firebase.google.com]][Laravel-url]
+- [![Firebase][Firebase.google.com]][Firebase-url]
 - [![Vue Router][VueRouter]][Router-url]
 - [![Node.js][Node.js]][Node.js-url]
 
@@ -261,7 +261,7 @@ After cloning the repository, you'll need to set up your own Firebase project:
 
 ## License
 
-None for now..
+[MIT](https://github.com/jack123xyz/notflix/blob/main/LICENSE)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
