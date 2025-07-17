@@ -63,6 +63,8 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <li><a href="#Screenshots">Screenshots</a></li>
+    <li><a href="#Features">Features</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     
@@ -250,6 +252,8 @@ After cloning the repository, you'll need to set up your own Firebase project:
 - [x] Component-based structure leverages Vue.js for modular UI elements (Navbar, Footer, Content Grids/Carousels, Modals, etc.)
 - [x] Utilizes Pinia for global state management (user data, movie/TV genres, etc.)
 - [x] Client side routing between sections using Vue Router
+- [x] My List functionality with persistent storage of user selections
+- [x] Search allows users to search for content by name
 - [x] Tailwind CSS styling
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
