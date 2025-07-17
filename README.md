@@ -38,7 +38,7 @@
     <a href="https://github.com/jack123xyz/notflix"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://notflix.jack123.xyz/">View Demo</a>
+    <a href="https://jack-notflix.netlify.app/">View Demo</a>
     ·
     <a href="https://github.com/jack123xyz/notflix/issues/new/choose">Report Bug</a>
     ·

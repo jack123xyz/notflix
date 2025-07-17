@@ -3,9 +3,7 @@
 .env.local
 .env.development
 .env.production
-src/firebase.js
-src/config/firebase.js
-src/config/api-keys.js
+
 
 # Backup folders
 backups/
