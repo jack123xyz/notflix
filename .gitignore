@@ -70,7 +70,7 @@ known_hosts
 *.env
 
 # Firebase config files that might contain API keys
-src/firebase.js
+
 firebase.json
 .firebaserc
 
