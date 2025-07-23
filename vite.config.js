@@ -41,7 +41,6 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             vendor: ["vue", "vue-router"],
-            youtube: ["youtube"],
           },
         },
       },
