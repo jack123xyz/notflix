@@ -37,23 +37,47 @@ const playerContainer = ref(null);
 const activeAudioSource = ref(getActiveAudioSource());
 
 const loadYouTubeAPI = () => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     if (window.YT && window.YT.Player) {
       return resolve();
     }
-    const scriptId = "youtube-iframe-api";
-    if (document.getElementById(scriptId)) {
-      const onReady = () => {
-        if (window.YT) resolve();
-        else setTimeout(onReady, 50);
+
+    const existingScript = document.getElementById("youtube-iframe-api");
+    if (existingScript) {
+      const checkAPI = () => {
+        if (window.YT && window.YT.Player) {
+          resolve();
+        } else {
+          setTimeout(checkAPI, 100);
+        }
       };
-      onReady();
+      checkAPI();
       return;
     }
+
     const tag = document.createElement("script");
-    tag.id = scriptId;
+    tag.id = "youtube-iframe-api";
     tag.src = "https://www.youtube.com/iframe_api";
-    window.onYouTubeIframeAPIReady = () => resolve();
+    tag.async = true;
+    tag.defer = true;
+
+    const originalCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (originalCallback) originalCallback();
+      resolve();
+    };
+
+    tag.onerror = () => {
+      console.error("Failed to load YouTube API");
+      reject(new Error("YouTube API failed to load"));
+    };
+
+    setTimeout(() => {
+      if (!window.YT || !window.YT.Player) {
+        reject(new Error("YouTube API load timeout"));
+      }
+    }, 10000);
+
     document.head.appendChild(tag);
   });
 };
@@ -115,43 +139,63 @@ const startVideoMonitor = () => {
 const initPlayer = async () => {
   if (!props.trailerKey || !playerContainer.value) return;
 
-  await loadYouTubeAPI();
+  try {
+    await loadYouTubeAPI();
 
-  player = new window.YT.Player("featured-trailer-player-container", {
-    videoId: props.trailerKey,
-    playerVars: {
-      autoplay: 1,
-      controls: 0,
-      loop: 0,
-      playlist: props.trailerKey,
-      modestbranding: 1,
-      rel: 0,
-      showinfo: 0,
-      mute: 1,
-      iv_load_policy: 3,
-      fs: 0,
-      disablekb: 1,
-      playsinline: 1,
-      origin: window.location.origin,
-    },
-    events: {
-      onReady: (event) => {
-        setupPlayerIframe(event.target);
-        emit("playerReady");
-        startVideoMonitor();
-        handleMuteChange();
+    if (!playerContainer.value) {
+      console.warn("Player container no longer exists");
+      return;
+    }
+
+    player = new window.YT.Player("featured-trailer-player-container", {
+      videoId: props.trailerKey,
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        loop: 0,
+        playlist: props.trailerKey,
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 0,
+        mute: 1,
+        iv_load_policy: 3,
+        fs: 0,
+        disablekb: 1,
+        playsinline: 1,
+        origin: window.location.origin,
       },
-      onStateChange: (event) => {
-        if (event.data === window.YT.PlayerState.ENDED) {
-          emit("trailerEnded");
-          if (audioFocusRelease) {
-            audioFocusRelease();
-            audioFocusRelease = null;
+      events: {
+        onReady: (event) => {
+          try {
+            setupPlayerIframe(event.target);
+            emit("playerReady");
+            startVideoMonitor();
+            handleMuteChange();
+          } catch (error) {
+            console.error("Error in onReady:", error);
           }
-        }
+        },
+        onStateChange: (event) => {
+          try {
+            if (event.data === window.YT.PlayerState.ENDED) {
+              emit("trailerEnded");
+              if (audioFocusRelease) {
+                audioFocusRelease();
+                audioFocusRelease = null;
+              }
+            }
+          } catch (error) {
+            console.error("Error in onStateChange:", error);
+          }
+        },
+        onError: (event) => {
+          console.error("YouTube player error:", event.data);
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error("Failed to initialize YouTube player:", error);
+  }
 };
 
 const handleMuteChange = () => {

@@ -9,7 +9,6 @@ import { vite as vidstack } from "vidstack/plugins";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const isProd = mode === "production";
 
@@ -19,7 +18,6 @@ export default defineConfig(({ mode }) => {
       vue({
         template: {
           compilerOptions: {
-            // This tells Vue that swiper-* and media-* tags are custom elements
             isCustomElement: (tag) =>
               tag.startsWith("swiper-") || tag.startsWith("media-"),
           },
@@ -34,8 +32,25 @@ export default defineConfig(({ mode }) => {
       },
     },
     esbuild: {
-      // Drop console.log in production
       drop: isProd ? ["console"] : [],
+    },
+    build: {
+      target: "es2015",
+      sourcemap: isProd ? false : true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ["vue", "vue-router"],
+            youtube: ["youtube"],
+          },
+        },
+      },
+    },
+    server: {
+      headers: {
+        "Cross-Origin-Embedder-Policy": "credentialless",
+        "Cross-Origin-Opener-Policy": "same-origin",
+      },
     },
   };
 });
